@@ -123,3 +123,60 @@ sessions_df.to_csv("data/raw/ride_sessions.csv", index=False)
 
 print(sessions_df.head())
 print(f"Total sessions generated: {len(sessions_df)}")
+
+# generate ride events
+events = []
+event_counter = 1
+
+for _, session in sessions_df.iterrows():
+    session_id = session['session_id']
+    user_id = session['user_id']
+    base_time = pd.to_datetime(session['session_start'])
+
+    session_events = ['app_open']
+
+    if np.random.rand() < 0.88:
+        session_events.append('destination_selected')
+
+        if np.random.rand() < 0.95:
+            session_events.append('fare_shown')
+
+            if np.random.rand() < 0.68:
+                session_events.append('ride_requested')
+
+                if np.random.rand() < 0.82:
+                    session_events.append('driver_assigned')
+
+                    if np.random.rand() < 0.93:
+                        session_events.append('ride_completed')
+
+    for step, event_name in enumerate(session_events):
+        event_id = f'E{event_counter:08d}'
+        event_counter += 1
+
+        event_time = base_time + timedelta(seconds=step * 30)
+
+        events.append([
+            event_id,
+            session_id,
+            user_id,
+            event_name,
+            event_time
+        ])
+
+# convert to dataframe
+events_df = pd.DataFrame(
+    events,
+    columns=[
+        'event_id',
+        'session_id',
+        'user_id',
+        'event_name',
+        'event_time'
+    ]
+)
+
+events_df.to_csv("data/raw/ride_events.csv", index=False)
+
+print(events_df.head())
+print(f"Total events generated: {len(events_df)}")
