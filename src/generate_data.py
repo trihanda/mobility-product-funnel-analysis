@@ -132,22 +132,45 @@ for _, session in sessions_df.iterrows():
     session_id = session['session_id']
     user_id = session['user_id']
     base_time = pd.to_datetime(session['session_start'])
+    
+    segment = session['user_segment']
+
+    if segment == 'New':
+        p_destination = 0.80
+        p_fare = 0.94
+        p_request = 0.55
+        p_driver = 0.80
+        p_complete = 0.90
+    
+    elif segment == 'Returning':
+        p_destination = 0.88
+        p_fare = 0.95
+        p_request = 0.68
+        p_driver = 0.82
+        p_complete = 0.93
+
+    else: #Power
+        p_destination = 0.96
+        p_fare = 0.99
+        p_request = 0.90
+        p_driver = 0.90
+        p_complete = 0.97
 
     session_events = ['app_open']
 
-    if np.random.rand() < 0.88:
+    if np.random.rand() < p_destination:
         session_events.append('destination_selected')
 
-        if np.random.rand() < 0.95:
+        if np.random.rand() < p_fare:
             session_events.append('fare_shown')
 
-            if np.random.rand() < 0.68:
+            if np.random.rand() < p_request:
                 session_events.append('ride_requested')
 
-                if np.random.rand() < 0.82:
+                if np.random.rand() < p_driver:
                     session_events.append('driver_assigned')
 
-                    if np.random.rand() < 0.93:
+                    if np.random.rand() < p_complete:
                         session_events.append('ride_completed')
 
     for step, event_name in enumerate(session_events):
